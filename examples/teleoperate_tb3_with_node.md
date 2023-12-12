@@ -1,4 +1,4 @@
-## Example 1
+## Teleoperate The Turtlebot with a Node
 <!-- <p align="center">
   <img src="images/move_stretch.gif"/>
 </p> -->
