@@ -20,7 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'move = tb3_ros2_tutorials.move:main',
+            'move        = tb3_ros2_tutorials.move:main',
+            'scan_filter = tb3_ros2_tutorials.scan_filter:main',
         ],
     },
 )
