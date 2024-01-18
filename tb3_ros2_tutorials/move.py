@@ -1,31 +1,37 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-# Every python controller needs these lines
-import rospy
+## Every Python node in ROS2 should include these lines
+import rclpy
+from rclpy.node import Node
 
-# The Twist message is used to send velocities to the robot
+## We are going to import the built-in Twist message type
+## that is used to send velocity commands to the robot
 from geometry_msgs.msg import Twist
 
-class Move:
+
+class Move(Node):
 	"""
-	A class that sends Twist messages to move the Stretch robot foward.
+	A class that sends Twist messages to move the Turtlebot forward.
 	"""
 	def __init__(self):
 		"""
-		Function that initializes the publisher.
-		:param self: The self reference
+		A constructor that initializes the parent class and publisher.
+		@param self: The self reference
 		"""
-		# Setup a publisher that will send the velocity commands for the Stretch
-		# This will publish on a topic called "/stretch/cmd_vel" with a message type Twist
-		self.pub = rospy.Publisher('/stretch/cmd_vel', Twist, queue_size=1) #/stretch_diff_drive_controller/cmd_vel for gazebo
+		## Initialize parent class. The idiom is to use the `super()` class and it calls the
+		## `Node` class's constructor.
+		super().__init__('publisher')
 
+		## Create a publisher, and assign it to a member variable. The call takes a type, 
+		## topic name, and queue size.
+		self.pub = rospy.Publisher(Twist,'cmd_vel', queue_size=1) 
 
 	def move_forward(self):
 		"""
 		Function that publishes Twist messages
-		:param self: The self reference.
+		@param self: The self reference.
 
-		:publishes command: Twist message.
+		@publishes command: Twist message.
 		"""
 		# Make a Twist message.  We're going to set all of the elements, since we
 		# can't depend on them defaulting to safe values
