@@ -33,10 +33,25 @@ class Move(Node):
 		## callback.  Timers are repeating by default.
 		self.timer = self.create_timer(1, self.move_forward)
 
-		# Log that we published something.  In ROS2, loggers are associated with nodes, and
-		# the idiom is to use the get_logger() call to get the logger.  This has functions
-		# for each of the logging levels.
+		## Log that we published something.  In ROS2, loggers are associated with nodes, and
+		## the idiom is to use the get_logger() call to get the logger.  This has functions
+		## for each of the logging levels.
 		self.get_logger().info('The {0} class is up and running. Sending Twist commands to the Turtlebot.'.format(self.__class__.__name__))
+
+
+	def __del__(self):
+		'''
+
+		'''
+		self.get_logger().info('The destructor works')
+		print("Attempt")
+		# Make a Twist message.  We're going to set all of the elements, since we
+		# can't depend on them defaulting to safe values
+		command = Twist()
+
+		# Publish the Twist commands
+		self.pub.publish(command)
+
 
 	def move_forward(self):
 		'''
