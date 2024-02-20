@@ -3,24 +3,40 @@
   <img src="images/move_stretch.gif"/>
 </p> -->
 
-<!-- The goal of this example is to control the mobile base by sending `Twist` messages.
+The objective of this guide is to send [Twist](https://docs.ros2.org/galactic/api/geometry_msgs/msg/Twist.html)
 
-Begin by running the following command in a new terminal.
 
+Open a terminal from your PC with `Ctrl` + `Alt` + `T` and connect to the Raspberry Pi with its IP address.
 ```bash
-# Terminal 1
-roslaunch stretch_core stretch_driver.launch
+# Terminal 1 
+ssh ubuntu@{IP_ADDRESS_OF_RASPBERRY_PI}
 ```
 
-Switch the mode to *navigation* mode using a rosservice call. Then drive the robot forward with the move node.
+Within that same terminal, launch the turtlebot3 robot bringup. Make sure to use correct `Turtlebot3_model` parameter for your system. It'll be either `burger` or `waffle_pi`. 
+```bash
+# Terminal 1
+export TURTLEBOT3_MODEL=burger
+ros2 launch turtlebot3_bringup robot.launch.py
+```
+
+Open a new terminal on your local machine and run the following command to execute the move node
+```bash
+# Terminal 2
+ros2 run tb3_ros2_tutorials move
+```
+
+To stop the node from sending twist messages, type **`Ctrl`** + **`c`**.
+
 
 ```bash
 # Terminal 2
-rosservice call /switch_to_navigation_mode
-cd catkin_ws/src/stretch_ros_tutorials/src/
-python move.py
+ros2 topic pub --once /cmd_vel geometry_msgs/Twist "{linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}"
+
 ```
-To stop the node from sending twist messages, type **Ctrl** + **c**.
+<!-- The goal of this example is to control the mobile base by sending `Twist` messages.
+
+
+
 
 ### The Code
 Below is the code which will send *Twist* messages to drive the robot forward.
