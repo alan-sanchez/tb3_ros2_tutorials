@@ -8,7 +8,6 @@ from rclpy.node import Node
 ## that is used to send velocity commands to the robot
 from geometry_msgs.msg import Twist
 
-
 class Move(Node):
 	'''
 	A class that sends Twist messages to move the Turtlebot Burger forward.
@@ -37,20 +36,6 @@ class Move(Node):
 		## the idiom is to use the get_logger() call to get the logger.  This has functions
 		## for each of the logging levels.
 		self.get_logger().info('The {0} class is up and running. Sending Twist commands to the Turtlebot.'.format(self.__class__.__name__))
-
-
-	def __del__(self):
-		'''
-
-		'''
-		self.get_logger().info('The destructor works')
-		print("Attempt")
-		# Make a Twist message.  We're going to set all of the elements, since we
-		# can't depend on them defaulting to safe values
-		command = Twist()
-
-		# Publish the Twist commands
-		self.pub.publish(command)
 
 
 	def move_forward(self):
@@ -82,11 +67,14 @@ class Move(Node):
 		# Publish the Twist commands
 		self.pub.publish(command)
 
-## The idiom in ROS2 is to use a function to do all of the setup and work.  This
-## function is referenced in the setup.py file as the entry point of the node when
-## we're running the node with ros2 run.  The function should have one argument, for
-## passing command line arguments, and it should default to None.
+
 def main(args=None):
+	'''
+	The idiom in ROS2 is to use a function to do all of the setup and work.  This
+	function is referenced in the setup.py file as the entry point of the node when
+	we're running the node with ros2 run.  The function should have one argument, for
+	passing command line arguments, and it should default to None.
+	'''
 	## Initialize rclpy.  We should do this every time.
 	rclpy.init(args=args)
 
