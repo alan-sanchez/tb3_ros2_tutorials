@@ -2,6 +2,8 @@
 
 ## Every Python node in ROS2 should include these lines
 import rclpy
+import time
+import sys
 from rclpy.node import Node
 from rclpy.duration import Duration
 
@@ -31,7 +33,7 @@ class Move(Node):
 		## Rather than setting up a Rate-controller loop, the idiom in ROS2 is to use timers.
 		## Timers are available in the Node interface, and take a period (in seconds), and a
 		## callback.  Timers are repeating by default.
-		self.timer = self.create_timer(1, self.move_base)
+		# self.timer = self.create_timer(1, self.move_base)
 
 		## Log that we published something.  In ROS2, loggers are associated with nodes, and
 		## the idiom is to use the get_logger() call to get the logger.  This has functions
@@ -73,11 +75,12 @@ class Move(Node):
 		while (self.get_clock().now() - start_time) < duration:
 			## Publish the Twist commands
 			self.pub.publish(command)
-			rclpy.spin_once(self, timeout_sec=0.1)
 
 		## Send a stopping command
 		command.angular.z = 0.0
 		self.pub.publish(command)
+		time.sleep(0.2)
+
 
 ## The idiom in ROS2 is to use a function to do all of the setup and work.  This
 ## function is referenced in the setup.py file as the entry point of the node when
@@ -95,7 +98,8 @@ def main(args=None):
 
 	## Declare object from the `Move` class
 	base_motion = Move()
-	base_motion.move_base(duration=5)
+	base_motion.move_base(duration=3)
+	# rclpy.spin_once(base_motion.move_base(duration=2))	
 	## The spin() call gives control over to ROS2, and it now takes a Node-derived
 	## class as a parameter.
 	# rclpy.spin(base_motion)
