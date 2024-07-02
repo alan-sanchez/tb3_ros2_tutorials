@@ -67,6 +67,7 @@ class Move(Node):
 			## Publish the Twist commands
 			self.pub.publish(command)
 
+		## Send a stopping command
 		self.stop()
 		
 	def stop(self):
