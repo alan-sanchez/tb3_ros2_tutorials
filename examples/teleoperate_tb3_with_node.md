@@ -114,7 +114,7 @@ def main(args=None):
 	- args: Command line arguments (default is None).
 	'''
 	
-	rclpy.init(args=rclpy_args)
+	rclpy.init(args=args)
 
 	base_motion = Move()
 	base_motion.move_base(duration=5)
