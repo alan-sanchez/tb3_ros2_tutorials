@@ -25,7 +25,7 @@ Open a new terminal on your local machine and run the following command to execu
 ros2 run tb3_ros2_tutorials move
 ```
 
-To stop the node from sending twist messages, type **`Ctrl`** + **`c`**.
+To stop the node from sending twist messages, type **`Ctrl`** + **`c`**. However, if that doesn't work, an alternative is to copy and paste the following in the terminal;
 
 
 ```bash
