@@ -58,6 +58,7 @@ class Move(Node):
 		Publisher:
 		- command (Twist): base velocity commands for the Turtlebot.
 		'''
+		## Positive values makes the robot spin counter-clockwise
 		self.command.angular.z = 0.5
 
 		## Get the current time and set the duration for the movement
@@ -79,7 +80,10 @@ class Move(Node):
 		Parameters:
 		- self: The self reference.
 		'''
+		## Set the angular velocity to zero
 		self.command.angular.z = 0.0
+
+		## Publish the command and notify user that the command has been sent
 		self.pub.publish(self.command)
 		self.get_logger().info('Stop command sent.')
 
