@@ -33,59 +33,102 @@ To stop the node from sending twist messages, type **`Ctrl`** + **`c`**. However
 ros2 topic pub --once /cmd_vel geometry_msgs/Twist "{linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}"
 
 ```
-<!-- The goal of this example is to control the mobile base by sending `Twist` messages.
-
-
-
+The goal of this example is to control the mobile base by sending `Twist` messages.
 
 ### The Code
 Below is the code which will send *Twist* messages to drive the robot forward.
 
 ```python
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import rospy
+import rclpy
+import time
+import sys
+import argparse
+import signal
+from rclpy.node import Node
+from rclpy.duration import Duration
+
 from geometry_msgs.msg import Twist
 
-class Move:
-	"""
-	A class that sends Twist messages to move the Stretch robot foward.
-	"""
+class Move(Node):
+	'''
+	A class that sends Twist messages to move the Turtlebot Burger forward.
+	'''
 	def __init__(self):
-		"""
-		Function that initializes the subscriber.
-		:param self: The self reference.
-		"""
-		self.pub = rospy.Publisher('/stretch/cmd_vel', Twist, queue_size=1) #/stretch_diff_drive_controller/cmd_vel for gazebo
+		'''
+		Constructor method for initializing the Move class.
+		Parameters:
+		- self: The self reference.
+		'''
+		super().__init__('twist_publisher')
 
-	def move_forward(self):
-		"""
+		self.pub = self.create_publisher(Twist,'/cmd_vel', 1) 
+
+		self.get_logger().info('The {0} class is up and running. Sending Twist commands to the Turtlebot.'.format(self.__class__.__name__))
+
+		self.command = Twist()
+		self.command.linear.x = 0.0
+		self.command.linear.y = 0.0
+		self.command.linear.z = 0.0
+		self.command.angular.x = 0.0
+		self.command.angular.y = 0.0
+		self.command.angular.z = 0.0 
+
+	def move_base(self, duration=5):
+		'''
 		Function that publishes Twist messages
-		:param self: The self reference.
+		Parameters:
+		- self: The self reference.
 
-		:publishes command: Twist message.
-		"""
-		command = Twist()
-		command.linear.x = 0.1
-		command.linear.y = 0.0
-		command.linear.z = 0.0
-		command.angular.x = 0.0
-		command.angular.y = 0.0
-		command.angular.z = 0.0
-		self.pub.publish(command)
+		Publisher:
+		- command (Twist): base velocity commands for the Turtlebot.
+		'''
+		self.command.angular.z = 0.5
+
+		start_time = self.get_clock().now()
+		duration = Duration(seconds=duration)
+
+		while (self.get_clock().now() - start_time) < duration:
+			self.pub.publish(self.command)
+
+		self.stop()
+		
+
+	def stop(self):
+		'''
+		Function to stop the robot by sending zero velocities.
+
+		Parameters:
+		- self: The self reference.
+		'''
+		self.command.angular.z = 0.0
+		self.pub.publish(self.command)
+		self.get_logger().info('Stop command sent.')
+
+
+def main(args=None):
+	'''
+	A function that initializes all the methods.
+	Parameters:
+	- args: Command line arguments (default is None).
+	'''
+	
+	rclpy.init(args=rclpy_args)
+
+	base_motion = Move()
+	base_motion.move_base(duration=5)
+	base_motion.destroy_node()
+	rclpy.shutdown()
 
 if __name__ == '__main__':
-	rospy.init_node('move')
-	base_motion = Move()
-	rate = rospy.Rate(10)
-	while not rospy.is_shutdown():
-		base_motion.move_forward()
-		rate.sleep()
+	main()
+
 ```
 
 ### The Code Explained
 
-Now let's break the code down.
+<!-- Now let's break the code down.
 
 ```python
 #!/usr/bin/env python
