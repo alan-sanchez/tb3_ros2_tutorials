@@ -14,15 +14,13 @@ from rclpy.duration import Duration
 from geometry_msgs.msg import Twist
 
 class Move(Node):
-	'''
+	"""
 	A class that sends Twist messages to move the Turtlebot Burger forward.
-	'''
+	"""
 	def __init__(self) -> None:
-		'''
+		"""
 		Constructor method for initializing the Move class.
-		Parameters:
-		- self: The self reference.
-		'''
+		"""
 		## Initialize parent class, giving it a name. The idiom is to use the `super()` class and it calls the
 		## `Node` class's constructor
 		super().__init__('twist_publisher')
@@ -53,14 +51,12 @@ class Move(Node):
 		self.command.angular.z = 0.0 
 
 	def move_base(self, duration: float = 5) -> None:
-		'''
+		"""
 		Function that publishes Twist messages
-		Parameters:
-		- self: The self reference.
-
-		Publisher:
-		- command (Twist): base velocity commands for the Turtlebot.
-		'''
+	
+		Args:
+			duration (float): The duration (in seconds) for which the robot should move.
+		"""
 		## Positive values makes the robot spin counter-clockwise
 		self.command.angular.z = 0.5
 
@@ -77,12 +73,9 @@ class Move(Node):
 		self.stop()
 		
 	def stop(self) -> None:
-		'''
-		Function to stop the robot by sending zero velocities.
-
-		Parameters:
-		- self: The self reference.
-		'''
+		"""
+		Function to stop the robot by sending a zero angular velocity.
+		"""
 		## Set the angular velocity to zero
 		self.command.angular.z = 0.0
 
@@ -95,11 +88,11 @@ class Move(Node):
 ## we're running the node with ros2 run.  The function should have one argument, for
 ## passing command line arguments, and it should default to None. 
 def main(args: Optional[List[str]] = None) -> None:
-	'''
+	"""
 	A function that initializes all the methods.
-	Parameters:
-	- args: Command line arguments (default is None).
-	'''
+	Args:
+		args: Command line arguments (default is None).
+	"""
 	# ## Set up argument parsing
 	# ## Create an ArgumentParser object, which helps parse command-line arguments.
 	# ## The 'description' is just a message that shows up when you run the script with --help.
