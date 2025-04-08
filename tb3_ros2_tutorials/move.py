@@ -6,6 +6,7 @@ import time
 import sys
 import argparse
 import signal
+from typing import Optional, List
 from rclpy.node import Node
 from rclpy.duration import Duration
 
@@ -16,7 +17,7 @@ class Move(Node):
 	'''
 	A class that sends Twist messages to move the Turtlebot Burger forward.
 	'''
-	def __init__(self):
+	def __init__(self) -> None:
 		'''
 		Constructor method for initializing the Move class.
 		Parameters:
@@ -31,7 +32,9 @@ class Move(Node):
 
 		## Log that we published something.  In ROS2, loggers are associated with nodes, and the idiom is to use the 
 		## get_logger() call to get the logger. This has functions  for each of the logging levels
-		self.get_logger().info('The {0} class is up and running. Sending Twist commands to the Turtlebot.'.format(self.__class__.__name__))
+		self.get_logger().info(
+			f'The {self.__class__.__name__} class is up and running. Sending Twist commands to the Turtlebot.'
+		)
 
 		## Make a Twist message. We're going to set all of the elements
 		self.command = Twist()
@@ -49,7 +52,7 @@ class Move(Node):
 		self.command.angular.y = 0.0
 		self.command.angular.z = 0.0 
 
-	def move_base(self, duration=5):
+	def move_base(self, duration: float = 5) -> None:
 		'''
 		Function that publishes Twist messages
 		Parameters:
@@ -73,7 +76,7 @@ class Move(Node):
 		## Send a stopping command
 		self.stop()
 		
-	def stop(self):
+	def stop(self) -> None:
 		'''
 		Function to stop the robot by sending zero velocities.
 
@@ -91,7 +94,7 @@ class Move(Node):
 ## function is referenced in the setup.py file as the entry point of the node when
 ## we're running the node with ros2 run.  The function should have one argument, for
 ## passing command line arguments, and it should default to None. 
-def main(args=None):
+def main(args: Optional[List[str]] = None) -> None:
 	'''
 	A function that initializes all the methods.
 	Parameters:
@@ -122,7 +125,7 @@ def main(args=None):
 	base_motion = Move()
 
 	## Define a signal handler to stop the robot on exit
-	def signal_handler(sig, frame):
+	def signal_handler(sig, frame) -> None:
 		base_motion.stop()
 		base_motion.destroy_node()
 		rclpy.shutdown()
