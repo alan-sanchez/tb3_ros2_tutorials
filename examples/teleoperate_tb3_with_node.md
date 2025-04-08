@@ -19,13 +19,13 @@ export TURTLEBOT3_MODEL=burger
 ros2 launch turtlebot3_bringup robot.launch.py
 ```
 
-Open a new terminal on your local machine and run the following command to execute the move node
+Open a new terminal on your local machine and run the following command to execute the move node.
 ```bash
 # Terminal 2
 ros2 run tb3_ros2_tutorials move
 ```
 
-To stop the node from sending twist messages, type **`Ctrl`** + **`c`**. However, if that doesn't work, an alternative is to copy and paste the following in the terminal;
+To stop the node from sending twist messages, type **`Ctrl`** + **`c`**. However, if that doesn't work, an alternative is to copy and paste the following in the terminal:
 
 
 ```bash
@@ -43,8 +43,8 @@ Below is the code which will send *Twist* messages to drive the robot forward.
 
 import rclpy
 import time
-import sys
-import argparse
+# import sys
+# import argparse
 import signal
 from rclpy.node import Node
 from rclpy.duration import Duration
@@ -113,7 +113,15 @@ def main(args=None):
 	Parameters:
 	- args: Command line arguments (default is None).
 	'''
-	
+	def signal_handler(sig, frame):
+		base_motion.stop()
+		base_motion.destroy_node()
+		rclpy.shutdown()
+		sys.exit(0)
+
+	## Register the signal handler
+	signal.signal(signal.SIGINT, signal_handler)
+
 	rclpy.init(args=args)
 
 	base_motion = Move()
@@ -128,7 +136,7 @@ if __name__ == '__main__':
 
 ### The Code Explained
 
-<!-- Now let's break the code down.
+Now let's break the code down.
 
 ```python
 #!/usr/bin/env python
@@ -136,7 +144,7 @@ if __name__ == '__main__':
 Every Python ROS [Node](http://wiki.ros.org/Nodes) will have this declaration at the top. The first line makes sure your script is executed as a Python script.
 
 
-```python
+<!-- ```python
 import rospy
 from geometry_msgs.msg import Twist
 ```
