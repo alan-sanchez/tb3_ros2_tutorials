@@ -97,26 +97,26 @@ def main(args=None):
 	Parameters:
 	- args: Command line arguments (default is None).
 	'''
-	## Set up argument parsing
-	## Create an ArgumentParser object, which helps parse command-line arguments.
-	## The 'description' is just a message that shows up when you run the script with --help.
-	parser = argparse.ArgumentParser(description='Move Turtlebot')
+	# ## Set up argument parsing
+	# ## Create an ArgumentParser object, which helps parse command-line arguments.
+	# ## The 'description' is just a message that shows up when you run the script with --help.
+	# parser = argparse.ArgumentParser(description='Move Turtlebot')
 
-	## Adds a command-line argument called --duration.
-	## It's expected to be an integer (type=int).
-	## If the user doesn’t provide this argument, it defaults to 5.
-	## The help string describes what the argument does.
-	parser.add_argument('--duration', type=int, default=5, help='Duration to move the Turtlebot')
+	# ## Adds a command-line argument called --duration.
+	# ## It's expected to be an integer (type=int).
+	# ## If the user doesn’t provide this argument, it defaults to 5.
+	# ## The help string describes what the argument does.
+	# parser.add_argument('--duration', type=int, default=5, help='Duration to move the Turtlebot')
 
-	## Parses the command-line arguments and stores them in the 'parsed_args' object.
-	## You can then access the duration with: parsed_args.duration
-	parsed_args = parser.parse_args()
+	# ## Parses the command-line arguments and stores them in the 'parsed_args' object.
+	# ## You can then access the duration with: parsed_args.duration
+	# parsed_args = parser.parse_args()
 
-	## Convert the parsed arguments to a list format suitable for rclpy.init()
-	rclpy_args = sys.argv[1:]
+	# ## Convert the parsed arguments to a list format suitable for rclpy.init()
+	# rclpy_args = sys.argv[1:]
 
 	## Initialize rclpy
-	rclpy.init(args=rclpy_args)
+	rclpy.init(args=args) #rclpy_args)
 
 	## Create an intsance of the `Move` class 
 	base_motion = Move()
@@ -132,7 +132,7 @@ def main(args=None):
 	signal.signal(signal.SIGINT, signal_handler)
 
 	## Move the turtlebot for the specified duration
-	base_motion.move_base(duration=parsed_args.duration)
+	base_motion.move_base(duration=5.0) #parsed_args.duration)
 
 	## Destroy the node and shutdown rclpy
 	base_motion.destroy_node()
