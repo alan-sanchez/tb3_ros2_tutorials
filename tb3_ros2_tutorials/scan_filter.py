@@ -19,9 +19,6 @@ class ScanFilter(Node):
         ''' 
         A constructor that initializes the parent class, subscriber, publisher
         and other parameters.
-
-		Parameters:
-		- self: The self reference
         '''
         ## Initialize parent class, giving it a name. The idiom is to use the `super()` class and it calls the
 		## `Node` class's constructor.
@@ -53,16 +50,15 @@ class ScanFilter(Node):
 		## for each of the logging levels.
         self.get_logger().info("Publishing the filtered_scan topic. Use RViz to visualize.")
     
-    def scan_filter_callback(self,msg):
+    def scan_filter_callback(self,msg: LaserScan) -> None:
         '''
         Callback function to deal with incoming LaserScan messages.
 
-        Parameters:
-		- self: The self reference.
-		- msg (LaserScan): The Turtlebot Scan message.
+        Args:
+            msg (LaserScan): The Turtlebot Scan message.
 
         Publisher:
-		- msg (LaserScan): Filtered scan.
+		    msg (LaserScan): Filtered scan.
         '''
 
         ## Figure out the angles of the scan.  We're going to do this each time,
@@ -83,7 +79,7 @@ class ScanFilter(Node):
 ## function is referenced in the setup.py file as the entry point of the node when
 ## we're running the node with ros2 run.  The function should have one argument, for
 ## passing command line arguments, and it should default to None.
-def main(args=None):
+def main(args=Optional[List[str]] = None) -> None:
     ## Initialize rclpy.  We should do this every time.
     rclpy.init(args=args)
 
