@@ -3,7 +3,7 @@
   <img src="images/move_stretch.gif"/>
 </p> -->
 
-The objective of this guide is to send [Twist](https://docs.ros2.org/galactic/api/geometry_msgs/msg/Twist.html)
+The objective of this guide is to send [Twist](https://docs.ros2.org/galactic/api/geometry_msgs/msg/Twist.html) message type to the turtlebot and move it's base in a rotaitonal motion. 
 
 
 Open a terminal from your PC with `Ctrl` + `Alt` + `T` and connect to the Raspberry Pi with its IP address.
@@ -149,7 +149,6 @@ import rospy
 from geometry_msgs.msg import Twist
 ```
 You need to import rospy if you are writing a ROS Node. The geometry_msgs.msg import is so that we can send velocity commands to the robot.
-
 
 
 
