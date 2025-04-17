@@ -6,6 +6,7 @@ from rclpy.node import Node
 
 ## Import modules and the LaserScan message type
 from rclpy.qos import QoSProfile
+from typing import Optional, List
 from numpy import linspace, inf
 from math import sin
 from sensor_msgs.msg import LaserScan
@@ -79,7 +80,7 @@ class ScanFilter(Node):
 ## function is referenced in the setup.py file as the entry point of the node when
 ## we're running the node with ros2 run.  The function should have one argument, for
 ## passing command line arguments, and it should default to None.
-def main(args=Optional[List[str]] = None) -> None:
+def main(args: Optional[List[str]] = None) -> None:
     ## Initialize rclpy.  We should do this every time.
     rclpy.init(args=args)
 
