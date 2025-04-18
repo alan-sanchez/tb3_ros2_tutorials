@@ -2,9 +2,7 @@
 
 ## Import needed libraries
 import rclpy
-import time
 import sys
-import argparse
 import signal
 from typing import Optional, List
 from rclpy.node import Node
@@ -93,24 +91,6 @@ def main(args: Optional[List[str]] = None) -> None:
 	Args:
 		args: Command line arguments (default is None).
 	"""
-	## Set up argument parsing
-	## Create an ArgumentParser object, which helps parse command-line arguments.
-	## The 'description' is just a message that shows up when you run the script with --help.
-	parser = argparse.ArgumentParser(description='Move Turtlebot')
-
-	## Adds a command-line argument called --duration.
-	## It's expected to be an integer (type=int).
-	## If the user doesn’t provide this argument, it defaults to 5.
-	## The help string describes what the argument does.
-	parser.add_argument('--duration', type=int, default=5, help='Duration to move the Turtlebot')
-
-	## Parses the command-line arguments and stores them in the 'parsed_args' object.
-	## You can then access the duration with: parsed_args.duration
-	parsed_args = parser.parse_args()
-
-	## Convert the parsed arguments to a list format suitable for rclpy.init()
-	rclpy_args = sys.argv[1:]
-
 	## Initialize rclpy
 	rclpy.init(args=args) # rclpy_args)
 
