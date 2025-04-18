@@ -42,30 +42,29 @@ Below is the code which will send *Twist* messages to drive the robot forward.
 #!/usr/bin/env python3
 
 import rclpy
-import time
-# import sys
-# import argparse
+import sys
 import signal
+
+from typing import Optional, List
 from rclpy.node import Node
 from rclpy.duration import Duration
-
 from geometry_msgs.msg import Twist
 
 class Move(Node):
-	'''
+	"""
 	A class that sends Twist messages to move the Turtlebot Burger forward.
-	'''
-	def __init__(self):
-		'''
+	"""
+	def __init__(self) -> None:
+		"""
 		Constructor method for initializing the Move class.
-		Parameters:
-		- self: The self reference.
-		'''
+		"""
 		super().__init__('twist_publisher')
 
 		self.pub = self.create_publisher(Twist,'/cmd_vel', 1) 
 
-		self.get_logger().info('The {0} class is up and running. Sending Twist commands to the Turtlebot.'.format(self.__class__.__name__))
+		self.get_logger().info(
+			f'The {self.__class__.__name__} class is up and running. Sending Twist commands to the Turtlebot.'
+		)
 
 		self.command = Twist()
 		self.command.linear.x = 0.0
@@ -75,15 +74,13 @@ class Move(Node):
 		self.command.angular.y = 0.0
 		self.command.angular.z = 0.0 
 
-	def move_base(self, duration=5):
-		'''
+	def move_base(self, duration: float = 5) -> None:
+		"""
 		Function that publishes Twist messages
-		Parameters:
-		- self: The self reference.
-
-		Publisher:
-		- command (Twist): base velocity commands for the Turtlebot.
-		'''
+	
+		Args:
+			duration (float): The duration (in seconds) for which the robot should move.
+		"""
 		self.command.angular.z = 0.5
 
 		start_time = self.get_clock().now()
@@ -92,40 +89,36 @@ class Move(Node):
 		while (self.get_clock().now() - start_time) < duration:
 			self.pub.publish(self.command)
 
-		self.stop()
-		
-
-	def stop(self):
-		'''
-		Function to stop the robot by sending zero velocities.
-
-		Parameters:
-		- self: The self reference.
-		'''
+	def stop(self) -> None:
+		"""
+		Function to stop the robot by sending a zero angular velocity.
+		"""
 		self.command.angular.z = 0.0
+
 		self.pub.publish(self.command)
 		self.get_logger().info('Stop command sent.')
 
 
-def main(args=None):
-	'''
+def main(args: Optional[List[str]] = None) -> None:
+	"""
 	A function that initializes all the methods.
-	Parameters:
-	- args: Command line arguments (default is None).
-	'''
-	def signal_handler(sig, frame):
+	Args:
+		args: Command line arguments (default is None).
+	"""
+	rclpy.init(args=args) 
+	base_motion = Move()
+
+	def signal_handler(sig, frame) -> None:
 		base_motion.stop()
 		base_motion.destroy_node()
 		rclpy.shutdown()
 		sys.exit(0)
 
-	## Register the signal handler
 	signal.signal(signal.SIGINT, signal_handler)
 
-	rclpy.init(args=args)
+	base_motion.move_base(duration=5.0) 
+	base_motion.stop()
 
-	base_motion = Move()
-	base_motion.move_base(duration=5)
 	base_motion.destroy_node()
 	rclpy.shutdown()
 
