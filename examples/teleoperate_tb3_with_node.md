@@ -141,17 +141,7 @@ Every Python ROS [Node](http://wiki.ros.org/Nodes) will have this declaration at
 import rospy
 from geometry_msgs.msg import Twist
 ```
-You need to import rospy if you are writing a ROS Node. The geometry_msgs.msg import is so that we can send velocity commands to the robot.
-
-
-
-After saving the edited node, bringup [Stretch in the empty world simulation](gazebo_basics.md). To drive the robot with the node, type the follwing in a new terminal
-
-```bash
-cd catkin_ws/src/stretch_ros_tutorials/src/
-python move.py
-```
-To stop the node from sending twist messages, type **Ctrl** + **c**.
+You need to import rospy if you are writing a ROS Node. The `geometry_msgs.msg` import is so that we can send velocity commands to the robot.
 
 
 **Next Example:** [Example 2](example_2.md)
