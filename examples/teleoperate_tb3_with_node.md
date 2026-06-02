@@ -249,4 +249,4 @@ if __name__ == '__main__':
 
 The idiom in ROS 2 is to set up a `main()` function and to call it from the entry point of the script.
 
-**Next Example:** [Example 2](https://github.com/alan-sanchez/tb3_ros2_tutorials/blob/main/examples/example_2.md)
+**Next Example:** [Laser Scan Filter](/home/asanchez/ros2_ws/src/tb3_ros2_tutorials/examples/laser_scan_filter.md)
