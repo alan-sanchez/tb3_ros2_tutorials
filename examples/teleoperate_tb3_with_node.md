@@ -133,7 +133,7 @@ Now let's break the code down.
 #!/usr/bin/env python3
 ```
 
-Every Python ROS [Node](http://wiki.ros.org/Nodes) will have this declaration at the top. The first line makes sure your script is executed as a Python3 script.
+Every Python ROS [Node](https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Nodes/Understanding-ROS2-Nodes.html) will have this declaration at the top. The first line makes sure your script is executed as a Python3 script.
 
 ```python
 import rclpy
@@ -145,7 +145,7 @@ from rclpy.duration import Duration
 from geometry_msgs.msg import Twist
 ```
 
-You need to import `rclpy` if you are writing a ROS 2 [Node](http://wiki.ros.org/Nodes). The `geometry_msgs.msg` import provides the built-in `Twist` message type used to send velocity commands to the robot. `signal` and `sys` are used to handle graceful shutdowns on **Ctrl** + **c**.
+You need to import `rclpy` if you are writing a ROS 2 Node. The `geometry_msgs.msg` import provides the built-in `Twist` message type used to send velocity commands to the robot. `signal` and `sys` are used to handle graceful shutdowns on **Ctrl** + **c**.
 
 ```python
 class Move(Node):
