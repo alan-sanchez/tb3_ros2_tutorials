@@ -23,6 +23,7 @@ Open a new terminal on your local machine and run the following command to execu
 
 ```
 # Terminal 2
+export TURTLEBOT3_MODEL=burger
 ros2 run tb3_ros2_tutorials move
 ```
 
@@ -60,9 +61,7 @@ class Move(Node):
 
 		self.pub = self.create_publisher(Twist,'/cmd_vel', 1)
 
-		self.get_logger().info(
-			f'The {self.__class__.__name__} class is up and running. Sending Twist commands to the Turtlebot.'
-		)
+		self.get_logger().info(f'The {self.__class__.__name__} class is up and running. Sending Twist commands to the Turtlebot.')
 
 		self.command = Twist()
 		self.command.linear.x = 0.0
@@ -77,7 +76,7 @@ class Move(Node):
 		Function that publishes Twist messages
 
 		Args:
-			duration (float): The duration (in seconds) for which the robot should move.
+			duration (float): The duration (in seconds) the robot will move.
 		"""
 		self.command.angular.z = 0.5
 
@@ -86,6 +85,9 @@ class Move(Node):
 
 		while (self.get_clock().now() - start_time) < duration:
 			self.pub.publish(self.command)
+
+		## Send a stopping command
+		self.stop()
 
 	def stop(self) -> None:
 		"""
@@ -116,7 +118,6 @@ def main(args: Optional[List[str]] = None) -> None:
 	signal.signal(signal.SIGINT, signal_handler)
 
 	base_motion.move_base(duration=5.0)
-	base_motion.stop()
 
 	base_motion.destroy_node()
 	rclpy.shutdown()
@@ -139,13 +140,18 @@ Every Python ROS [Node](https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-To
 import rclpy
 import sys
 import signal
+```
+
+You need to import `rclpy` since it provides the tools to create and run ROS 2 nodes. `signal` and `sys` are used to handle shutdowns when a user presses **Ctrl** + **c**.
+
+```python
 from typing import Optional, List
 from rclpy.node import Node
 from rclpy.duration import Duration
 from geometry_msgs.msg import Twist
 ```
+The `typing` libary enables [type hints](https://docs.python.org/3/library/typing.html) that make the coder easier to follow and maintain. The `Node` class is from the rclpy.node library, and used to create and run nodes. `Duration` is used to work with time intervals. The `geometry_msgs.msg` import provides the built-in `Twist` message type used to send velocity commands to the robot
 
-You need to import `rclpy` if you are writing a ROS 2 Node. The `geometry_msgs.msg` import provides the built-in `Twist` message type used to send velocity commands to the robot. `signal` and `sys` are used to handle graceful shutdowns on **Ctrl** + **c**.
 
 ```python
 class Move(Node):
@@ -162,9 +168,7 @@ The idiom in ROS 2 is to define nodes as classes that inherit from `Node`. Using
 This creates a publisher and assigns it to a member variable. The call takes a message type, a topic name, and a queue size.
 
 ```python
-        self.get_logger().info(
-            f'The {self.__class__.__name__} class is up and running...'
-        )
+        self.get_logger().info(f'The {self.__class__.__name__} class is up and running...')
 ```
 
 In ROS 2, loggers are associated with nodes. The idiom is to use the `get_logger()` call to get the node's logger, which has methods for each logging level (`info`, `warn`, `error`, etc.).
@@ -191,7 +195,7 @@ A `Twist` also has three rotational velocities (in radians per second). The Turt
         self.command.angular.z = 0.5
 ```
 
-Positive values make the robot spin counter-clockwise.
+Positive angular values make the robot spin counter-clockwise.
 
 ```python
         start_time = self.get_clock().now()
@@ -199,9 +203,12 @@ Positive values make the robot spin counter-clockwise.
 
         while (self.get_clock().now() - start_time) < duration:
             self.pub.publish(self.command)
+
+		## Send a stopping command
+		self.stop()
 ```
 
-Get the current time and set the duration for the movement, then continuously publish the `Twist` command to move the TurtleBot3 for the specified duration.
+Get the current time and set the duration for the movement, then continuously publish the `Twist` command to move the TurtleBot3 for the specified duration. Then run the member function `self.stop()` to stop any kind of movement. 
 
 ```python
     def stop(self) -> None:
@@ -234,13 +241,12 @@ Define and register a signal handler to stop the robot cleanly on **Ctrl** + **c
 
 ```python
     base_motion.move_base(duration=5.0)
-    base_motion.stop()
 
     base_motion.destroy_node()
     rclpy.shutdown()
 ```
 
-Move the TurtleBot3 for the specified duration, then send a stop command. Finally, destroy the node and shut down `rclpy` to cleanly release all resources.
+Move the TurtleBot3 for the specified duration. Finally, destroy the node and shut down `rclpy` to cleanly release all resources.
 
 ```python
 if __name__ == '__main__':
