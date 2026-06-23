@@ -67,8 +67,8 @@ class Move(Node):
 			## Publish the Twist commands
 			self.pub.publish(self.command)
 
-		# ## Send a stopping command
-		# self.stop()
+		## Send a stopping command
+		self.stop()
 		
 	def stop(self) -> None:
 		"""
@@ -109,7 +109,6 @@ def main(args: Optional[List[str]] = None) -> None:
 
 	## Move the turtlebot for the specified duration
 	base_motion.move_base(duration=5.0) # parsed_args.duration)
-	base_motion.stop()
 
 	## Destroy the node and shutdown rclpy
 	base_motion.destroy_node()
