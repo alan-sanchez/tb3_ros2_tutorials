@@ -5,7 +5,7 @@ import rclpy
 from rclpy.node import Node
 
 ## Import modules and the LaserScan message type
-from rclpy.qos import QoSProfile
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 from typing import Optional, List
 from numpy import linspace, inf
 from math import sin
@@ -25,11 +25,11 @@ class ScanFilter(Node):
 		## `Node` class's constructor.
         super().__init__('scan_filter')
 
-        ## Set QoS profile for subscriber becuase we get an mismatch in Quality of Service (QOS)
+        ## Set QoS profile for subscriber because we get an mismatch in Quality of Service (QOS)
         ## policies between the publishers and subscribers on the `/scan` topic. 
         subscriber_qos = QoSProfile(
             depth=10,  # Adjust the depth as needed
-            reliability= 2 # Reference values:https://docs.ros2.org/foxy/api/rclpy/api/qos.html
+            reliability=QoSReliabilityPolicy.BEST_EFFORT  # Reference values:https://docs.ros.org/en/humble/Concepts/Intermediate/About-Quality-of-Service-Settings.html
         )
 
         ## Create a publisher, and assign it to a member variable. The call takes a type, 
@@ -71,7 +71,7 @@ class ScanFilter(Node):
         
         ## If we're close to the x axis, keep the range, otherwise use inf, which means "no return"
         new_ranges = [r if abs(y) < self.extent else inf for r,y in zip(msg.ranges, points)]
-        
+
         ## Substitute in the new ranges in the original message, and republish it
         msg.ranges = new_ranges
         self.pub.publish(msg)
