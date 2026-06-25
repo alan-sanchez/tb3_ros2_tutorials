@@ -67,7 +67,7 @@ class ScanFilter(Node):
         angles = linspace(msg.angle_min, msg.angle_max, len(msg.ranges))
 
         ## Work out the y coordinates of the ranges
-        points = [r * sin(theta) if (theta < 0.525 or theta > 5.753) else inf for r,theta in zip(msg.ranges, angles)]
+        points = [r * sin(theta) if (theta < 1 or theta > 5) else inf for r,theta in zip(msg.ranges, angles)]
         
         ## If we're close to the x axis, keep the range, otherwise use inf, which means "no return"
         new_ranges = [r if abs(y) < self.extent else inf for r,y in zip(msg.ranges, points)]
