@@ -1,11 +1,9 @@
 ## Scan Filter Demo
 
-The aim of this example is to provide instruction on how to filter scan messages.
-
-For robots with laser scanners, ROS provides a special Message type in the [sensor_msgs](https://docs.ros.org/en/humble/p/sensor_msgs/) package called [LaserScan](https://docs.ros.org/en/humble/p/sensor_msgs/msg/LaserScan.html) to hold information about a given scan. Let's take a look at the message specification itself:
+The aim of this example is to provide instruction on how to filter the Turtlebot's LiDAR measurements. ROS provides a special Message type in the [sensor_msgs](https://docs.ros.org/en/humble/p/sensor_msgs/) package called [LaserScan](https://docs.ros.org/en/humble/p/sensor_msgs/msg/LaserScan.html) to hold information about a given laser scan. Let's take a look at the message specification itself:
 
 ```
-# Laser scans angles are measured counter clockwise, with Stretch's LiDAR having
+# Laser scans angles are measured counter clockwise, with the Turtlebot's LiDAR having
 # both angle_min and angle_max facing forward (very closely along the x-axis)
 
 Header header
@@ -25,162 +23,148 @@ The above message tells you everything you need to know about a scan. Most impor
   <img src="../media/LiDAR_sensor_msg_diagram.png"/>
 </p>
 
-<!-- For a Stretch robot the start angle of the scan, `angle_min`, and
-end angle, `angle_max`, are closely located along the x-axis of Stretch's frame. `angle_min` and `angle_max` are set at **-3.1416** and **3.1416**, respectively. This is illustrated by the images below.
+For a Turtlebot robot the start angle of the scan, `angle_min`, and end angle, `angle_max`, are closely located along the x-axis of Turtlebot's frame. `angle_min` and `angle_max` are set at **0** and **6.27** radians, respectively. This is illustrated by the images below.
 
-<p align="center">
+<!-- <p align="center">
   <img height=500 src="images/stretch_axes.png"/>
   <img height=500 src="images/scan_angles.png"/>
 
-</p>
+</p> -->
 
 
-Knowing the orientation of the LiDAR allows us to filter the scan values for a desired range. In this case, we are only considering the scan ranges in front of the stretch robot.
+Knowing the orientation of the LiDAR allows us to filter the scan values for a desired range. In this case, we are only considering the scan ranges in front of the Turtlebot. 
 
-First, open a terminal and run the stretch driver launch file.
+<!-- Insert illustration to help -->
+
+```
+# Terminal 1
+ssh ubuntu@{IP_ADDRESS_OF_RASPBERRY_PI}
+```
+
+Within that same terminal, launch the TurtleBot3 robot bringup. Make sure to use the correct `TURTLEBOT3_MODEL` parameter for your system — either `burger` or `waffle_pi`.
 
 ```bash
 # Terminal 1
-roslaunch stretch_core stretch_driver.launch
+export TURTLEBOT3_MODEL=burger
+ros2 launch turtlebot3_bringup robot.launch.py
 ```
 
-Then in a new terminal run the `rplidar.launch` file from `stretch_core`.
+Open a new terminal on your local machine and run the following command to execute the move node.
+
 ```bash
 # Terminal 2
-roslaunch stretch_core rplidar.launch
+export TURTLEBOT3_MODEL=burger
+ros2 run tb3_ros2_tutorials scan_filter
 ```
-
-To filter the lidar scans for ranges that are directly in front of Stretch (width of 1 meter) run the [scan_filter.py](https://github.com/hello-robot/stretch_tutorials/blob/noetic/src/scan_filter.py) node by typing the following in a new terminal.
+<!-- TODO: ADD more detail here -->
 
 ```bash
 # Terminal 3
-cd catkin_ws/src/stretch_tutorials/src/
-python3 scan_filter.py
+$ ros2 launch turtlebot3_bringup rviz2.launch.py  
 ```
 
-Then run the following command to bring up a simple RViz configuration of the Stretch robot.
-```bash
-# Terminal 4
-rosrun rviz rviz -d `rospack find stretch_core`/rviz/stretch_simple_test.rviz
-```
 Change the topic name from the LaserScan display from */scan* to */filter_scan*.
 
-<p align="center">
+<!-- <p align="center">
   <img height=600 src="images/scanfilter.gif"/>
-</p>
+</p> -->
 
 ### The Code
 
 ```python
 #!/usr/bin/env python3
 
-import rospy
+## Every Python node in ROS2 should include these lines
+import rclpy
+from rclpy.node import Node
+
+## Import modules and the LaserScan message type
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy
+from typing import Optional, List
 from numpy import linspace, inf
 from math import sin
 from sensor_msgs.msg import LaserScan
 
-class ScanFilter:
-	"""
-	A class that implements a LaserScan filter that removes all of the points
-	that are not in front of the robot.
-	"""
-	def __init__(self):
-		self.width = 1.0
-		self.extent = self.width / 2.0
-		self.sub = rospy.Subscriber('/scan', LaserScan, self.callback)
-		self.pub = rospy.Publisher('filtered_scan', LaserScan, queue_size=10)
-		rospy.loginfo("Publishing the filtered_scan topic. Use RViz to visualize.")
+class ScanFilter(Node):
+    '''
+    A class that implements a LaserScan filter that removes all of the points.
+	that are not directly in front of the robot.
+    '''
+    def __init__(self):
+        ''' 
+        A constructor that initializes the parent class, subscriber, publisher
+        and other parameters.
+        '''
+        super().__init__('scan_filter')
 
-	def callback(self,msg):
-		"""
-		Callback function to deal with incoming LaserScan messages.
-		:param self: The self reference.
-		:param msg: The subscribed LaserScan message.
 
-		:publishes msg: updated LaserScan message.
-		"""
-		angles = linspace(msg.angle_min, msg.angle_max, len(msg.ranges))
-		points = [r * sin(theta) if (theta < -2.5 or theta > 2.5) else inf for r,theta in zip(msg.ranges, angles)]
-		new_ranges = [r if abs(y) < self.extent else inf for r,y in zip(msg.ranges, points)]
-		msg.ranges = new_ranges
-		self.pub.publish(msg)
+        subscriber_qos = QoSProfile(
+            depth=10, 
+            reliability=QoSReliabilityPolicy.BEST_EFFORT  
+        )
+        self.pub = self.create_publisher(LaserScan, '/filtered_scan', 10)
+
+        self.sub = self.create_subscription(LaserScan, '/scan', self.scan_filter_callback,  qos_profile=subscriber_qos)
+
+        self.width = 1
+        self.extent = self.width / 2.0
+
+        self.get_logger().info("Publishing the filtered_scan topic. Use RViz to visualize.")
+    
+    def scan_filter_callback(self,msg: LaserScan) -> None:
+        '''
+        Callback function to deal with incoming LaserScan messages.
+
+        Args:
+            msg (LaserScan): The Turtlebot Scan message.
+
+        Publisher:
+		    msg (LaserScan): Filtered scan.
+        '''
+
+        angles = linspace(msg.angle_min, msg.angle_max, len(msg.ranges))
+
+        points = [r * sin(theta) if (theta < 1 or theta > 5) else inf for r,theta in zip(msg.ranges, angles)]
+        
+        new_ranges = [r if abs(y) < self.extent else inf for r,y in zip(msg.ranges, points)]
+
+        msg.ranges = new_ranges
+        self.pub.publish(msg)
+ 
+def main(args: Optional[List[str]] = None) -> None:
+    rclpy.init(args=args)
+    scan_filter = ScanFilter()
+    rclpy.spin(scan_filter)
+    scan_filter.destroy_node()
+    rclpy.shutdown()
 
 if __name__ == '__main__':
-	rospy.init_node('scan_filter')
-	ScanFilter()
-	rospy.spin()
+	main()
+
 ```
 
 ### The Code Explained
 
 Now let's break the code down.
 
+Now let's break the code down.
+
 ```python
 #!/usr/bin/env python3
 ```
-Every Python ROS [Node](http://wiki.ros.org/Nodes) will have this declaration at the top. The first line makes sure your script is executed as a Python3 script.
 
-
-```python
-import rospy
-from numpy import linspace, inf
-from math import sin
-from sensor_msgs.msg import LaserScan
-```
-You need to import `rospy` if you are writing a ROS [Node](http://wiki.ros.org/Nodes). There are functions from `numpy` and `math` that are required within this code, thus why linspace, inf, and sin are imported. The `sensor_msgs.msg` import is so that we can subscribe and publish `LaserScan` messages.
+Every Python ROS [Node](https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Nodes/Understanding-ROS2-Nodes.html) will have this declaration at the top. The first line makes sure your script is executed as a Python3 script.
 
 ```python
-self.width = 1
-self.extent = self.width / 2.0
+import rclpy
 ```
-We're going to assume that the robot is pointing up the x-axis, so that any points with y coordinates further than half of the defined width (1 meter) from the axis are not considered.
 
-```python
-self.sub = rospy.Subscriber('/scan', LaserScan, self.callback)
-```
-Set up a subscriber.  We're going to subscribe to the topic *scan*, looking for `LaserScan` messages.  When a message comes in, ROS is going to pass it to the function "callback" automatically.
-
-```python
-self.pub = rospy.Publisher('filtered_scan', LaserScan, queue_size=10)
-```
-`pub = rospy.Publisher("filtered_scan", LaserScan, queue_size=10)` declares that your node is publishing to the *filtered_scan* topic using the message type `LaserScan`. This lets the master tell any nodes listening on *filtered_scan* that we are going to publish data on that topic.
-
-```python
-angles = linspace(msg.angle_min, msg.angle_max, len(msg.ranges))
-```
-This line of code utilizes linspace to compute each angle of the subscribed scan.
-
-```python
-points = [r * sin(theta) if (theta < -2.5 or theta > 2.5) else inf for r,theta in zip(msg.ranges, angles)]
-```
-Here we are computing the y coordinates of the ranges that are **below -2.5** and **above 2.5** radians of the scan angles. These limits are sufficient for considering scan ranges in front of Stretch, but these values can be altered to your preference.
-
-```python
-new_ranges = [r if abs(y) < self.extent else inf for r,y in zip(msg.ranges, points)]
-```
-If the absolute value of a point's y-coordinate is under *self.extent* then keep the range, otherwise use inf, which means "no return".
+You need to import `rclpy` since it provides the tools to create and run ROS 2 nodes. 
 
 
-```python
-msg.ranges = new_ranges
-self.pub.publish(msg)
-```
-Substitute in the new ranges in the original message, and republish it.
-
-```python
-rospy.init_node('scan_filter')
-ScanFilter()
-```
-The next line, `rospy.init_node(NAME, ...)`, is very important as it tells rospy the name of your node -- until rospy has this information, it cannot start communicating with the ROS Master. **NOTE:** the name must be a base name, i.e. it cannot contain any slashes "/".
-
-Instantiate the class with `ScanFilter()`
-
-```python
-rospy.spin()
-```
 Give control to ROS.  This will allow the callback to be called whenever new
 messages come in.  If we don't put this line in, then the node will not work,
 and ROS will not process any messages.
 
 **Previous Example:** [Teleoperate Stretch with a Node](example_1.md)
-**Next Example:** [Mobile Base Collision Avoidance](example_3.md) -->
+**Next Example:** [Mobile Base Collision Avoidance](example_3.md)
