@@ -6,14 +6,14 @@ The goal of this example is to give you an enhanced understanding of how to cont
 
 Begin by opening a terminal on your PC with **Ctrl** + **Alt** + **T** and connecting to the Raspberry Pi with its IP address.
 
-```
+```bash
 # Terminal 1
 ssh ubuntu@{IP_ADDRESS_OF_RASPBERRY_PI}
 ```
 
 Within that same terminal, launch the TurtleBot3 robot bringup. Make sure to use the correct `TURTLEBOT3_MODEL` parameter for your system — either `burger` or `waffle_pi`.
 
-```
+```bash
 # Terminal 1
 export TURTLEBOT3_MODEL=burger
 ros2 launch turtlebot3_bringup robot.launch.py
@@ -21,7 +21,7 @@ ros2 launch turtlebot3_bringup robot.launch.py
 
 Open a new terminal on your local machine and run the following command to execute the move node.
 
-```
+```bash
 # Terminal 2
 export TURTLEBOT3_MODEL=burger
 ros2 run tb3_ros2_tutorials move
@@ -29,7 +29,7 @@ ros2 run tb3_ros2_tutorials move
 
 To stop the node from sending Twist messages, type **Ctrl** + **c**. However, if that doesn't work, an alternative is to copy and paste the following into the terminal:
 
-```
+```bash
 # Terminal 2
 ros2 topic pub --once /cmd_vel geometry_msgs/Twist "{linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}"
 ```
