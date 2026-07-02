@@ -74,11 +74,9 @@ Change the topic name from the LaserScan display from */scan* to */filter_scan*.
 ```python
 #!/usr/bin/env python3
 
-## Every Python node in ROS2 should include these lines
 import rclpy
 from rclpy.node import Node
 
-## Import modules and the LaserScan message type
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 from typing import Optional, List
 from numpy import linspace, inf
@@ -166,5 +164,5 @@ Give control to ROS.  This will allow the callback to be called whenever new
 messages come in.  If we don't put this line in, then the node will not work,
 and ROS will not process any messages.
 
-**Previous Example:** [Teleoperate Stretch with a Node](example_1.md)
-**Next Example:** [Mobile Base Collision Avoidance](example_3.md)
+**Previous Example:** [Teleoperate Stretch with a Node](teleoperate_tb3_with_node.md)
+**Next Example:** [Mobile Base Collision Avoidance](README.md)
