@@ -1,6 +1,9 @@
 # Teleoperate the TurtleBot3 with a Node
 
-<!-- ![TurtleBot3 moving in a rotational motion](https://raw.githubusercontent.com/alan-sanchez/tb3_ros2_tutorials/main/images/move_tb3.gif) -->
+<p align="center">
+  <img height=300 src="../media/move.gif"/>
+</p>
+
 
 The goal of this example is to give you an enhanced understanding of how to control the mobile base by sending `Twist` messages to a TurtleBot3 robot.
 
