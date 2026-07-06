@@ -20,16 +20,14 @@ float32[] intensities    # intensity data [device-specific units]
 The above message tells you everything you need to know about a scan. Most importantly, you have the angle of each hit and its distance (range) from the scanner. If you want to work with raw range data, then the above message is all you need. There is also an image below that illustrates the components of the message type.
 
 <p align="center">
-  <img src="../media/LiDAR_sensor_msg_diagram.png"/>
+  <img height=500 src="../media/LiDAR_sensor_msg_diagram.png"/>
 </p>
 
-For a Turtlebot robot the start angle of the scan, `angle_min`, and end angle, `angle_max`, are closely located along the x-axis of Turtlebot's frame. `angle_min` and `angle_max` are set at **0** and **6.27** radians, respectively. This is illustrated by the images below.
+For a Turtlebot robot the start angle of the scan, `angle_min`, and end angle, `angle_max`, are closely aligned to the x-axis of Turtlebot's `base_link` transform frame. `angle_min` and `angle_max` are set at **0** and **6.28** (2π) radians, respectively. This is illustrated by the images below.
 
-<!-- <p align="center">
-  <img height=500 src="images/stretch_axes.png"/>
-  <img height=500 src="images/scan_angles.png"/>
-
-</p> -->
+<p align="center">
+  <img height=500 src="../media/lidar_angle_reference.png"/>
+</p>
 
 
 Knowing the orientation of the LiDAR allows us to filter the scan values for a desired range. In this case, we are only considering the scan ranges in front of the Turtlebot. 
@@ -100,9 +98,9 @@ class ScanFilter(Node):
             depth=10, 
             reliability=QoSReliabilityPolicy.BEST_EFFORT  
         )
-        self.pub = self.create_publisher(LaserScan, '/filtered_scan', 10)
-
         self.sub = self.create_subscription(LaserScan, '/scan', self.scan_filter_callback,  qos_profile=subscriber_qos)
+
+        self.pub = self.create_publisher(LaserScan, '/filtered_scan', 10)
 
         self.width = 1
         self.extent = self.width / 2.0
@@ -145,7 +143,6 @@ if __name__ == '__main__':
 
 Now let's break the code down.
 
-Now let's break the code down.
 
 ```python
 #!/usr/bin/env python3
@@ -155,9 +152,47 @@ Every Python ROS [Node](https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-To
 
 ```python
 import rclpy
+from rclpy.node import Node
 ```
 
-You need to import `rclpy` since it provides the tools to create and run ROS 2 nodes. 
+The `Node` class is from the `rclpy.node` library, and used to create and run nodes.
+
+```python
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy
+```
+The `rclpy.qos` library provides classes to configure the node's **Quality of Service (QoS)**, which determines how messages are delivered between publishers and subscribers. QoS is a core feature of ROS 2 and is used across all ROS 2 robots and distributions. In this tutorial, a QoS profile is defined because the TurtleBot3 LiDAR publishes LaserScan messages using the Sensor Data QoS profile. Other robotic platforms or sensors may use different QoS settings, and in some cases the default ROS 2 QoS is sufficient, so an explicit QoS profile is not always required.
+
+
+```python
+from typing import Optional, List
+from numpy import linspace, inf
+from math import sin
+from sensor_msgs.msg import LaserScan
+```
+The `typing` libary enables [type hints](https://docs.python.org/3/library/typing.html) that make the coder easier to follow and maintain. The numpy and math libraries are used for numerical operations.The LaserScan message from sensor_msgs.msg provides range measurements from the 2D LiDAR sensor.
+
+
+```python
+class ScanFilter(Node):
+    def __init__(self):
+        super().__init__('scan_filter')
+```
+
+The idiom in ROS 2 is to define nodes as classes that inherit from `Node`. Using `super()` calls the `Node` class's constructor and gives the node its name.
+
+```python
+        subscriber_qos = QoSProfile(
+            depth=10, 
+            reliability=QoSReliabilityPolicy.BEST_EFFORT  
+        )
+        self.sub = self.create_subscription(LaserScan, '/scan', self.scan_filter_callback,  qos_profile=subscriber_qos)
+```
+
+The `QoSProfile` object defines the Quality of Service (QoS) settings for the subscriber. The `depth=10` parameter specifies the size of the message queue. Essentially, this allows up to 10 messages to be stored if they cannot be processed immediately. The `reliability=QoSReliabilityPolicy.BEST_EFFORT` setting prioritizes receiving the most recent sensor data over.
+
+The `create_subscription()` method tells the node to listen to the `/scan` topic, which publishes `LaserScan` messages from the TurtleBot3's LiDAR sensor. Each time a new LiDAR scan is available, the `scan_filter_callback()` function is called to read and process the scan data. The `qos_profile=subscriber_qos` argument applies the QoS settings defined above so the node can receive LiDAR messages correctly.
+
+
 
 
 Give control to ROS.  This will allow the callback to be called whenever new
