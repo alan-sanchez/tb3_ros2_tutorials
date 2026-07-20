@@ -21,7 +21,7 @@ class Move(Node):
 		"""
 		## Initialize parent class, giving it a name. The idiom is to use the `super()` class and it calls the
 		## `Node` class's constructor
-		super().__init__('twist_publisher')
+		super().__init__('move')
 
 		## Create a publisher, and assign it to a member variable. The call takes a type, topic name, and queue size
 		self.pub = self.create_publisher(Twist,'/cmd_vel', 1) 
