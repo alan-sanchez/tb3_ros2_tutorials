@@ -67,6 +67,11 @@ Change the topic name from the LaserScan display from */scan* to */filter_scan*.
   <img height=600 src="images/scanfilter.gif"/>
 </p> -->
 
+
+<p align="center">
+  <img height=600 src="../media/lidar_width_range.png"/>
+</p>
+
 ### The Code
 
 ```python
@@ -192,7 +197,20 @@ The `QoSProfile` object defines the Quality of Service (QoS) settings for the su
 
 The `create_subscription()` method tells the node to listen to the `/scan` topic, which publishes `LaserScan` messages from the TurtleBot3's LiDAR sensor. Each time a new LiDAR scan is available, the `scan_filter_callback()` function is called to read and process the scan data. The `qos_profile=subscriber_qos` argument applies the QoS settings defined above so the node can receive LiDAR messages correctly.
 
+```python
+        self.pub = self.create_publisher(LaserScan, '/filtered_scan', 10)
+```
 
+This creates a publisher and assigns it to a member variable. The call takes a message type, a topic name, and a queue size.
+
+
+```python
+        self.width = 1
+        self.extent = self.width / 2.0
+
+        self.get_logger().info("Publishing the filtered_scan topic. Use RViz to visualize.")
+```
+The variables width and extent define the region in front of the TurtleBot3 that will be examined for obstacles. In this example, a width of 1 meter is used, meaning the robot only considers objects that are within 0.5 meters on either side of its forward direction (the x-axis). Any LiDAR measurements outside of this region are ignored, allowing the node to focus only on obstacles that are directly in the robot's path rather than those to its far left or right.
 
 
 Give control to ROS.  This will allow the callback to be called whenever new
