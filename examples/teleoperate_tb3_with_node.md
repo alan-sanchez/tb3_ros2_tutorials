@@ -60,7 +60,7 @@ class Move(Node):
 		"""
 		Constructor method for initializing the Move class.
 		"""
-		super().__init__('twist_publisher')
+		super().__init__('move')
 
 		self.pub = self.create_publisher(Twist,'/cmd_vel', 1)
 
@@ -89,7 +89,6 @@ class Move(Node):
 		while (self.get_clock().now() - start_time) < duration:
 			self.pub.publish(self.command)
 
-		## Send a stopping command
 		self.stop()
 
 	def stop(self) -> None:
@@ -159,7 +158,7 @@ The `typing` libary enables [type hints](https://docs.python.org/3/library/typin
 ```python
 class Move(Node):
     def __init__(self) -> None:
-        super().__init__('twist_publisher')
+        super().__init__('move')
 ```
 
 The idiom in ROS 2 is to define nodes as classes that inherit from `Node`. Using `super()` calls the `Node` class's constructor and gives the node its name.
@@ -183,7 +182,14 @@ In ROS 2, loggers are associated with nodes. The idiom is to use the `get_logger
         self.command.linear.z = 0.0
 ```
 
-Make a `Twist` message. We're going to set all of the elements, since we can't depend on them defaulting to safe values. A `Twist` has three linear velocities (in meters per second) along each of the axes. For the TurtleBot3, it will only pay attention to the x velocity, since it can't directly move in the y or z direction.
+Make a `Twist` message. We're going to set all of the elements, since we can't depend on them defaulting to safe values. A `Twist` has three linear velocities (in meters per second) along each of the axes. For the TurtleBot3, it will only pay attention to the x velocity, since it can't directly move in the y or z direction. Below are images that help illustrate the robot's local body-fixed frame, also named the `base_link`.
+
+
+<p align="center">
+  <img height=300 src="../media/tf_baselink.png"/>
+</p>
+
+
 
 ```python
         self.command.angular.x = 0.0
