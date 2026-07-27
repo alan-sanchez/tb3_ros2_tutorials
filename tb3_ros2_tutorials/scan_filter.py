@@ -32,14 +32,14 @@ class ScanFilter(Node):
             reliability=QoSReliabilityPolicy.BEST_EFFORT  # Reference values:https://docs.ros.org/en/humble/Concepts/Intermediate/About-Quality-of-Service-Settings.html
         )
 
-        ## Create a publisher, and assign it to a member variable. The call takes a type, 
-		## topic name, and queue size.
-        self.pub = self.create_publisher(LaserScan, '/filtered_scan', 10)
-        
         ## Create a subscriber, and assign it to a member variable. The call takes a type, 
         ## topic name, and the qos_profile argument.
         self.sub = self.create_subscription(LaserScan, '/scan', self.scan_filter_callback,  qos_profile=subscriber_qos)
 
+        ## Create a publisher, and assign it to a member variable. The call takes a type, 
+		## topic name, and queue size.
+        self.pub = self.create_publisher(LaserScan, '/filtered_scan', 10)
+        
         ## We're going to assume that the robot is pointing up the x-axis, so that
 		## any points with y coordinates further than half of the defined width (1 meter) 
         ## from the axis are not considered
