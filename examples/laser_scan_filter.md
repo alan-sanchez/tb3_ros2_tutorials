@@ -32,7 +32,10 @@ For a Turtlebot robot the start angle of the scan, `angle_min`, and end angle, `
 
 Knowing the orientation of the LiDAR allows us to filter the scan values for a desired range. In this case, we are only considering the scan ranges in front of the Turtlebot. 
 
-<!-- Insert illustration to help -->
+<p align="center">
+  <img height=600 src="../media/lidar_width_range.png"/>
+</p>
+
 
 ```
 # Terminal 1
@@ -68,9 +71,7 @@ Change the topic name from the LaserScan display from */scan* to */filter_scan*.
 </p> -->
 
 
-<p align="center">
-  <img height=600 src="../media/lidar_width_range.png"/>
-</p>
+
 
 ### The Code
 
@@ -211,6 +212,35 @@ This creates a publisher and assigns it to a member variable. The call takes a m
         self.get_logger().info("Publishing the filtered_scan topic. Use RViz to visualize.")
 ```
 The variables width and extent define the region in front of the TurtleBot3 that will be examined for obstacles. In this example, a width of 1 meter is used, meaning the robot only considers objects that are within 0.5 meters on either side of its forward direction (the x-axis). Any LiDAR measurements outside of this region are ignored, allowing the node to focus only on obstacles that are directly in the robot's path rather than those to its far left or right.
+
+```python
+        self.get_logger().info("Publishing the filtered_scan topic. Use RViz to visualize.")
+```
+Notify the user that we are publishing another laser scan. In ROS2, the idiom is to use `get_logger()` class
+
+```python
+        angles = linspace(msg.angle_min, msg.angle_max, len(msg.ranges))
+
+```
+
+```python
+
+        points = [r * sin(theta) if (theta < 1 or theta > 5) else inf for r,theta in zip(msg.ranges, angles)]
+        
+```
+
+<p align="center">
+  <img height=500 src="../media/lidar_angle_ranges.png"/>
+</p>
+
+
+```python
+        new_ranges = [r if abs(y) < self.extent else inf for r,y in zip(msg.ranges, points)]
+
+        msg.ranges = new_ranges
+        self.pub.publish(msg)
+
+```
 
 
 Give control to ROS.  This will allow the callback to be called whenever new
