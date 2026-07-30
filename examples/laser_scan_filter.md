@@ -37,12 +37,16 @@ Knowing the orientation of the LiDAR allows us to filter the scan values for a d
 </p>
 
 
+### Run the Demo
+
+Open a terminal and ssh into the Turtlebot
+
 ```
-# Terminal 1
+# Terminal 1 
 ssh ubuntu@{IP_ADDRESS_OF_RASPBERRY_PI}
 ```
 
-Within that same terminal, launch the TurtleBot3 robot bringup. Make sure to use the correct `TURTLEBOT3_MODEL` parameter for your system — either `burger` or `waffle_pi`.
+Within that same terminal, launch the TurtleBot3 robot bringup. Make sure to use the correct `TURTLEBOT3_MODEL` parameter for your system, either `burger` or `waffle_pi`.
 
 ```bash
 # Terminal 1
@@ -50,25 +54,25 @@ export TURTLEBOT3_MODEL=burger
 ros2 launch turtlebot3_bringup robot.launch.py
 ```
 
-Open a new terminal on your local machine and run the following command to execute the move node.
+Then open a new terminal and run the scan filter node on your local machine.
 
 ```bash
 # Terminal 2
 export TURTLEBOT3_MODEL=burger
 ros2 run tb3_ros2_tutorials scan_filter
 ```
-<!-- TODO: ADD more detail here -->
 
+In another terminal, run the rviz2 launch file in the turelbot3_bringup package on your local machine. 
 ```bash
 # Terminal 3
 $ ros2 launch turtlebot3_bringup rviz2.launch.py  
 ```
-
+This will bring up the rviz2 window with the default settings showing. 
 Change the topic name from the LaserScan display from */scan* to */filter_scan*.
 
-<!-- <p align="center">
-  <img height=600 src="images/scanfilter.gif"/>
-</p> -->
+<p align="center">
+  <img height=600 src="../media/filtered_scan.gif"/>
+</p>
 
 
 
