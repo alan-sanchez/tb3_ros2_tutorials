@@ -264,4 +264,4 @@ if __name__ == '__main__':
 
 The idiom in ROS 2 is to set up a `main()` function and to call it from the entry point of the script.
 
-**Next Example:** [Laser Scan Filter](/home/asanchez/ros2_ws/src/tb3_ros2_tutorials/examples/laser_scan_filter.md)
+**Next Example:** [Laser Scan Filter](laser_scan_filter.md)
