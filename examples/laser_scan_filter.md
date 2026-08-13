@@ -75,6 +75,11 @@ This will bring up the rviz2 window with the default settings showing. On the le
 
 
 
+<p align="center">
+  <img height=600 src="../media/scan_filter_comparison.gif"/>
+</p>
+
+
 
 ### The Code
 
