@@ -8,7 +8,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 from typing import Optional, List
 from numpy import linspace, inf
-from math import sin
+from math import sin, pi
 from sensor_msgs.msg import LaserScan
 
 class ScanFilter(Node):
@@ -67,7 +67,7 @@ class ScanFilter(Node):
         angles = linspace(msg.angle_min, msg.angle_max, len(msg.ranges))
 
         ## Work out the y coordinates of the ranges
-        points = [r * sin(theta) if (theta < 1 or theta > 5) else inf for r,theta in zip(msg.ranges, angles)]
+        points = [r * sin(theta) if (theta < pi/2 or theta > 3*pi/2) else inf for r,theta in zip(msg.ranges, angles)]
         
         ## If we're close to the x axis, keep the range, otherwise use inf, which means "no return"
         new_ranges = [r if abs(y) < self.extent else inf for r,y in zip(msg.ranges, points)]
