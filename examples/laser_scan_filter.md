@@ -64,16 +64,21 @@ ros2 run tb3_ros2_tutorials scan_filter
 
 In another terminal, run the rviz2 launch file from the turelbot3_bringup package on your local machine. 
 ```bash
-# Terminal 3
-$ ros2 launch turtlebot3_bringup rviz2.launch.py  
+# Terminal 
+ros2 launch turtlebot3_bringup rviz2.launch.py  
 ```
-This will bring up the rviz2 window with the default settings showing. On the left is the Display window. Click on `LaserScan` to drop down the attributes associated with this message type. Change the topic name from the LaserScan display from */scan* to */filter_scan*. There is a gif provided below for your reference. 
+This will bring up the rviz2 window with the default settings showing. On the left is the Display window. Click on `LaserScan` to drop down the attributes associated with this message type. Change the topic name from the LaserScan display from */scan* to */filter_scan*. There is a GIF provided below for your reference. 
 
 <p align="center">
   <img height=600 src="../media/filtered_scan.gif"/>
 </p>
 
+The GIF below shows the TurtleBot3 being controlled with the keyboard while the filtered LiDAR scan is displayed. The terminal output shows the command used to run the teleoperation executable from the `turtlebot3_teleop` packag
 
+```bash
+# Terminal 4
+ros2 run turtlebot3_teleop teleop_keyboard
+```
 
 <p align="center">
   <img height=600 src="../media/scan_filter_comparison.gif"/>
@@ -92,7 +97,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 from typing import Optional, List
 from numpy import linspace, inf
-from math import sin
+from math import sin, pi
 from sensor_msgs.msg import LaserScan
 
 class ScanFilter(Node):
@@ -134,7 +139,7 @@ class ScanFilter(Node):
 
         angles = linspace(msg.angle_min, msg.angle_max, len(msg.ranges))
 
-        points = [r * sin(theta) if (theta < 1 or theta > 5) else inf for r,theta in zip(msg.ranges, angles)]
+        points = [r * sin(theta) if (theta < (pi/2) or theta > (3*pi/2)) else inf for r,theta in zip(msg.ranges, angles)]
         
         new_ranges = [r if abs(y) < self.extent else inf for r,y in zip(msg.ranges, points)]
 
@@ -224,18 +229,26 @@ The variables width and extent define the region in front of the TurtleBot3 that
 ```python
         self.get_logger().info("Publishing the filtered_scan topic. Use RViz to visualize.")
 ```
-Notify the user that we are publishing another laser scan. In ROS2, the idiom is to use `get_logger()` class
+Notify the user that we are publishing another laser scan. In ROS2, the idiom is to use `get_logger()` class, and I recommen to use this instead of the `print()` function.  
 
 ```python
         angles = linspace(msg.angle_min, msg.angle_max, len(msg.ranges))
 
 ```
+The `linspace()` function creates a list of evenly spaced angle values between `msg.angle_min` and `msg.angle_max`. The number of angles created is based on len(msg.ranges), which is the number of distance measurements in the scan. 
+
+<!-- This is important because each LiDAR distance reading in msg.ranges corresponds to a specific angle. By creating the angles list, the node can pair each distance measurement with the direction it was measured from. This allows the program to later calculate where each scan point is located relative to the robot and decide whether that point should be kept or ignored. -->
 
 ```python
 
-        points = [r * sin(theta) if (theta < 1 or theta > 5) else inf for r,theta in zip(msg.ranges, angles)]
+        points = [r * sin(theta) if (theta < (pi/2) or theta > (3*pi/2)) else inf for r,theta in zip(msg.ranges, angles)]
         
 ```
+This line calculates the y-coordinate for each LiDAR scan point. Each value in msg.ranges represents how far away an object is, and each value in angles represents the direction of that measurement. The `zip(msg.ranges, angles)` function pairs each distance value with its matching angle so they can be used together.
+
+The expression `r * sin(theta)` converts each LiDAR reading into its sideways position (y-axis) relative to the robot. In other words, it tells us how far left or right the point is to the robot's centerline.
+
+The condition `if (theta < pi/2 or theta > 3*pi/2)` keeps only scan points that are roughly in front of the robot (illustrated by the image below). So, if the angle is outside that range, the value is set to inf, which means the scan point should be treated as if no object was detected there.
 
 <p align="center">
   <img height=500 src="../media/lidar_angle_ranges.png"/>
