@@ -147,6 +147,12 @@ class ScanFilter(Node):
         self.pub.publish(msg)
  
 def main(args: Optional[List[str]] = None) -> None:
+    """
+    A function that initializes all the methods
+    
+    Args:
+      args: Command line arguments (default is None).
+    """
     rclpy.init(args=args)
     scan_filter = ScanFilter()
     rclpy.spin(scan_filter)
@@ -262,11 +268,35 @@ The condition `if (theta < pi/2 or theta > 3*pi/2)` keeps only scan points that 
         self.pub.publish(msg)
 
 ```
+`new_ranges` is a list of the filtered LiDAR distances. It uses a conditional statement to check the original distance value wit hthe calculated y-coordinate value, and check if it is lower than the `self.extent` definition. If `abs(y)` value is larger than 0.5 meters to the left or right of the robot, then it is replaced with `inf`, which tells ROS2 to ingor the scan reading. 
+
+The `msg.ranges` is redefine the new values, `new_ranges`. Then publishes the updated LaserScan 
+
+```python
+def main(args: Optional[List[str]] = None) -> None:
+    rclpy.init(args=args)
+    scan_filter = ScanFilter()
+```
+
+The idiom in ROS 2 is to use a `main()` function to do all of the setup and work. This function is referenced in the `setup.py` file as the entry point of the node when running with `ros2 run`. It takes one argument for passing command line arguments, defaulting to `None`. `rclpy.init()` initializes the ROS 2 Python client library, and a `ScanFilter` instance is then created.
 
 
-Give control to ROS.  This will allow the callback to be called whenever new
-messages come in.  If we don't put this line in, then the node will not work,
-and ROS will not process any messages.
+```python
+    rclpy.spin(scan_filter)
+    scan_filter.destroy_node()
+    rclpy.shutdown()
+```
+
+Move the TurtleBot3 for the specified duration. Finally, destroy the node and shut down `rclpy` to cleanly release all resources.
+
+```python
+if __name__ == '__main__':
+    main()
+```
+
+The idiom in ROS 2 is to set up a `main()` function and to call it from the entry point of the script.
+
+
 
 **Previous Example:** [Teleoperate Stretch with a Node](teleoperate_tb3_with_node.md)
 **Next Example:** [Mobile Base Collision Avoidance](README.md)
