@@ -299,4 +299,4 @@ The idiom in ROS 2 is to set up a `main()` function and to call it from the entr
 
 
 **Previous Example:** [Teleoperate Stretch with a Node](teleoperate_tb3_with_node.md)
-**Next Example:** [Mobile Base Collision Avoidance](README.md)
+**Next Example:** [Mobile Base Collision Avoidance](collision_avoidance.md)
